@@ -24,6 +24,8 @@ func (cp * CreateReservationController) Run(c * gin.Context) {
 		Email           string
 		ReservationDate time.Time
 		Status          string
+		NumberCard      string
+		Pin             int64
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -31,13 +33,13 @@ func (cp * CreateReservationController) Run(c * gin.Context) {
 		return
 	}
 	
-	err := cp.useCase.Execute(input.UserName, input.LastName, input.CellPhone, input.Email, input.ReservationDate, input.Status)
+	reservationTo ,err := cp.useCase.Execute(input.UserName, input.LastName, input.CellPhone, input.Email, input.ReservationDate, input.Status, input.NumberCard, input.Pin)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	
-	c.JSON(http.StatusCreated, gin.H{"message": "Reservation created successfully"})
+	c.JSON(http.StatusCreated, gin.H{"message": reservationTo})
  
 
 }

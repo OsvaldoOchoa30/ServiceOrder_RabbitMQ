@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"time"
+    "service_order/src/reservation/domain/entities"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -31,16 +32,9 @@ func NewRabbitRepository(ch *amqp.Channel) *MyExchangeLogs {
 }
 
 // Método Save actualizado para coincidir con la interfaz
-func (ch *MyExchangeLogs) Save(username, lastname, cellphone, email string, reservationdate time.Time, status string) error {
+func (ch *MyExchangeLogs) Save(reservation *entities.Reservation) error {
     // Crear un objeto con los datos de la reserva
-    reservation := map[string]interface{}{
-        "username":        username,
-        "lastname":        lastname,
-        "cellphone":       cellphone,
-        "email":           email,
-        "reservationdate": reservationdate,
-        "status":          status,
-    }
+
 
     // Convertir a JSON
     body, err := json.Marshal(reservation)

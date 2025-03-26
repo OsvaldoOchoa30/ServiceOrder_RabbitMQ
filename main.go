@@ -21,6 +21,7 @@ func main() {
 	}
 
 	mysqlRepository := adapters.NewMySQLRepository(db)
+	
 	rabbitqmRepository := adapters.NewRabbitRepository(rabbitmq.Ch)
 	
 	// Ensure rabbitqmRepository implements the correct interface

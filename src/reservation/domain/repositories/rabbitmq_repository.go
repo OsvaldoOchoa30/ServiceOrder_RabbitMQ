@@ -1,7 +1,13 @@
 package repositories
 
-import "time"
+import (
+	"service_order/src/reservation/domain/entities"
+	_"time"
+)
 
 type IReservationRabbitqm interface {
-    Save(username, lastname, cellphone, email string, reservationdate time.Time, status string) error
+    Save(reservation *entities.Reservation) error
 }
+
+//regla de dependecia
+//patron repositorio

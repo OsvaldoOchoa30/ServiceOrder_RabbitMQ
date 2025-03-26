@@ -1,33 +1,38 @@
 package usecases
 
 import (
-	"service_order/src/reservation/domain/repositories"
-	"time"
-	"log"
+    "log"
+    "service_order/src/reservation/domain/entities"
+    "service_order/src/reservation/domain/repositories"
+    "time"
 )
 
 type CreateReservationUseCase struct {
-	db repositories.IReservation
-	rtqm repositories.IReservationRabbitqm
+    db repositories.IReservation
+    rtqm repositories.IReservationRabbitqm
 }
 
 func NewCreateReservationUseCase(db repositories.IReservation, rtqm repositories.IReservationRabbitqm) *CreateReservationUseCase {
-	return &CreateReservationUseCase{db: db, rtqm: rtqm}
+    return &CreateReservationUseCase{db: db, rtqm: rtqm}
 }
 
 func (usecase *CreateReservationUseCase) SetOrder(mysqlRepository repositories.IReservation, rabbitqmRepository repositories.IReservationRabbitqm) {
-	usecase.db = mysqlRepository
-	usecase.rtqm = rabbitqmRepository
+    usecase.db = mysqlRepository
+    usecase.rtqm = rabbitqmRepository
 }
 
-
-func (cp *CreateReservationUseCase) Execute(username string, lastname string, cellphone string, email string, reservationdate time.Time, status string) error {
-	err := cp.db.Save(username, lastname, cellphone, email, reservationdate, status)
-	errSendMessage := cp.rtqm.Save(username, lastname, cellphone, email, reservationdate, status)
-	if err != nil || errSendMessage != nil {
-		log.Panicf("error to send message %s", err); 
-		return err
-	}
-	
-	return errSendMessage; 
+func (cp *CreateReservationUseCase) Execute(username string, lastname string, cellphone string, email string, reservationdate time.Time, status string, numbercard string, pin int64) (*entities.Reservation, error) {
+    reservation, err := cp.db.Save(username, lastname, cellphone, email, reservationdate, status, numbercard, pin)
+    if err != nil {
+        log.Printf("Error al guardar la reservación: %s", err)
+        return nil, err
+    }
+    
+    errSendMessage := cp.rtqm.Save(reservation)
+    if errSendMessage != nil {
+        log.Printf("Error al enviar mensaje: %s", errSendMessage)
+        return reservation, errSendMessage
+    }
+    
+    return reservation, nil
 }
